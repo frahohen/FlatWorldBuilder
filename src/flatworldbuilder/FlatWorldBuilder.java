@@ -5,41 +5,38 @@
  */
 package flatworldbuilder;
 
+import flatworldbuilder.map.Map;
 import javafx.application.Application;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.layout.StackPane;
+import javafx.scene.control.ScrollPane;
 import javafx.stage.Stage;
 
 /**
  *
- * @author frahohen
+ * @author -HONOR-
  */
 public class FlatWorldBuilder extends Application {
     
+    public final String FLAT_WORLD_BUILDER = "Flat World Builder";
+    
+    private ScrollPane scrollPane;
+    private Map map;
+    
     @Override
     public void start(Stage primaryStage) {
-        Button btn = new Button();
-        btn.setText("Say 'Hello World'");
-        btn.setOnAction(new EventHandler<ActionEvent>() {
-            
-            @Override
-            public void handle(ActionEvent event) {
-                System.out.println("Hello World!");
-            }
-        });
         
-        StackPane root = new StackPane();
-        root.getChildren().add(btn);
+        scrollPane = new ScrollPane();
+        map = new Map(32,32, 1);
+        map.generate();
         
-        Scene scene = new Scene(root, 300, 250);
+        scrollPane.setContent(map.getMapPane());
         
-        primaryStage.setTitle("Hello World!");
+        Scene scene = new Scene(scrollPane, 515, 515);
+        
+        primaryStage.setTitle(FLAT_WORLD_BUILDER);
         primaryStage.setScene(scene);
         primaryStage.show();
-    }
+    } 
 
     /**
      * @param args the command line arguments
