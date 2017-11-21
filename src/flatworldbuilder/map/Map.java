@@ -6,7 +6,6 @@
 package flatworldbuilder.map;
 
 import flatworldbuilder.batch.Batch;
-import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Random;
 import javafx.scene.layout.Pane;
@@ -31,8 +30,6 @@ public class Map {
     private int connectionCount;
 
     private double percentageOfInterpolation;
-    private int x;
-    private int y;
 
     private ArrayList<Integer> forbiddenTypeList;
 
@@ -69,134 +66,108 @@ public class Map {
     }
 
     private void generateRiver() {
-        // TODO: might be only needed in method
-        boolean up = false;
-        boolean left = false;
-        boolean down = false;
-        
-        Point point = new Point(); // TODO: create indipendent Class with better name
+        Locator locator = new Locator();
 
         int side = new Random().nextInt(4);
-
-        x = 0; // TODO: might not be needed public anymore
-        int startY = 0; // TODO: maybe can be in method
-        int distance = 0; // TODO: can be in method
-        double interpolationX = 0; // TODO: can be in method
-
-        // TODO: might not be needed public anymore
-        y = new Random().nextInt(height);
-        y *= size;
-        // TODO: might be only needed in method
-        startY = y;
-        
-        interpolationX = ((width / 100.0) * percentageOfInterpolation) * size; // TODO: can be in method
-        left = true;
+        int distance = 0;
+        int x = 0;
+        int y = new Random().nextInt(height) * size;
+        int startY = y;
 
         if (side == 0) {
-            point.setLocation(x, y);
+            locator.setPosition(x, y);
         }
         if (side == 1) {
-            point.setLocation((width * size) - size, y);
+            locator.setPosition((width * size) - size, y);
         }
         if (side == 2) {
-            point.setLocation(y, x);
+            locator.setPosition(y, x);
         }
         if (side == 3) {
-            point.setLocation(y, (width * size) - size);
+            locator.setPosition(y, (width * size) - size);
         }
 
-        // Depending on up/down or left/right switch coordinate
-        changeType((int) point.getX(), (int) point.getY(), BATCH_WATER);
-        
+        changeType(locator.getX(), locator.getY(), BATCH_WATER);
+
         if (side == 0) {
-            while (point.getX() != (width * size) - size) {
-                point = generateByDirection((int) point.getX(), (int) point.getY(),
-                        left, up, down,
-                        distance, interpolationX, startY,
+            while (locator.getX() != (width * size) - size) {
+                locator = generateByDirection(
+                        locator.getX(), locator.getY(),
+                        distance, startY,
                         side);
-                point.setLocation(point.getX(), checkOutOfMap((int)point.getY()));
+                locator.setPosition(locator.getX(), checkOutOfMap(locator.getY()));
             }
         }
         if (side == 1) {
-            while (point.getX() != 0) {
-                point = generateByDirection((int) point.getX(), (int) point.getY(),
-                        left, up, down,
-                        distance, interpolationX, startY,
+            while (locator.getX() != 0) {
+                locator = generateByDirection(
+                        locator.getX(), locator.getY(),
+                        distance, startY,
                         side);
-                point.setLocation(point.getX(), checkOutOfMap((int)point.getY()));
+                locator.setPosition(locator.getX(), checkOutOfMap(locator.getY()));
             }
         }
         if (side == 2) {
-            while (point.getY() != (width * size) - size) {
-                point = generateByDirection((int) point.getY(), (int) point.getX(),
-                        left, up, down,
-                        distance, interpolationX, startY,
+            while (locator.getY() != (width * size) - size) {
+                locator = generateByDirection(
+                        locator.getY(), locator.getX(),
+                        distance, startY,
                         side);
-                point.setLocation(checkOutOfMap((int)point.getX()),(int)point.getY());
+                locator.setPosition(checkOutOfMap(locator.getX()), locator.getY());
             }
         }
         if (side == 3) {
-            while (point.getY() != 0) {
-                point = generateByDirection((int) point.getY(), (int) point.getX(),
-                        left, up, down,
-                        distance, interpolationX, startY,
+            while (locator.getY() != 0) {
+                locator = generateByDirection(
+                        locator.getY(), locator.getX(),
+                        distance, startY,
                         side);
-                point.setLocation(checkOutOfMap((int)point.getX()),(int)point.getY());
+                locator.setPosition(checkOutOfMap(locator.getX()), locator.getY());
             }
         }
 
         if (side == 0 || side == 1) {
-            distance = (int) point.getY() - startY;
-            while ((int) point.getY() != startY) {
-                point.setLocation(point.getX(), interpolateToValue((int) point.getY(), distance));
-                changeType((int) point.getX(), (int) point.getY(), BATCH_WATER);
+            distance = locator.getY() - startY;
+            while (locator.getY() != startY) {
+                locator.setPosition(locator.getX(), interpolateToValue(locator.getY(), distance));
+                changeType(locator.getX(), locator.getY(), BATCH_WATER);
             }
         }
 
-        if(side == 2 || side == 3){
-            distance = (int)point.getX() - startY;
-            while ((int)point.getX() != startY) {
-                point.setLocation(interpolateToValue((int)point.getX(),distance), point.getY());
-                changeType((int)point.getX(), (int)point.getY(), BATCH_WATER);
+        if (side == 2 || side == 3) {
+            distance = locator.getX() - startY;
+            while (locator.getX() != startY) {
+                locator.setPosition(interpolateToValue(locator.getX(), distance), locator.getY());
+                changeType(locator.getX(), locator.getY(), BATCH_WATER);
             }
         }
     }
 
-    private int checkOutOfMap(int y){
+    private int checkOutOfMap(int y) {
         if (y < 0) {
             y = (height * size) - size;
-        }
-
-        if (y > (height * size) - size) {
+        } else if (y > (height * size) - size) {
             y = 0;
         }
-        
-        return y; // TODO: return earlier
+        return y;
     }
-    
+
     private int interpolateToValue(int y, int distance) {
         if (distance < 0) {
             y += size;
         } else {
             y -= size;
         }
-
-        return y; // TODO: maybe return earlier
+        return y;
     }
 
-    private Point generateByDirection(
+    private Locator generateByDirection(
             int x, int y,
-            boolean left, boolean up, boolean down,
-            int distance, double interpolationX, int startY,
+            int distance,  int startY,
             int side) {
 
-        // TODO: this is used multiple times; convert it to one method
-        
-        if (side == 2 || side == 3) {
-            changeType(y, x, BATCH_WATER);
-        } else {
-            changeType(x, y, BATCH_WATER);
-        }
+        double interpolation = ((width / 100.0) * percentageOfInterpolation) * size;
+        setRiverBatch(x, y, side);
 
         // Case right to left or left to right
         if (side == 0 || side == 2) {
@@ -205,73 +176,62 @@ public class Map {
             x -= size;
         }
 
-        if (left) { // TODO: condition might be not needed if always going that way
-            // Depending on up/down or left/right switch coordinate
-            if (side == 2 || side == 3) {
-                changeType(y, x, BATCH_WATER);
-            } else {
-                changeType(x, y, BATCH_WATER);
+        setRiverBatch(x, y, side);
+
+        boolean up = new Random().nextBoolean();
+        boolean down = new Random().nextBoolean();
+
+        int chooseBoolean = new Random().nextInt(2);
+
+        while (up == false && down == false) {
+            switch (chooseBoolean) {
+                case 0:
+                    up = new Random().nextBoolean();
+                    break;
+                case 1:
+                    down = new Random().nextBoolean();
+                    break;
             }
-
-            up = new Random().nextBoolean();
-            down = new Random().nextBoolean();
-
-            int chooseBoolean = new Random().nextInt(2);
-
-            while (up == false && down == false) {
-                switch (chooseBoolean) {
-                    case 0:
-                        up = new Random().nextBoolean();
-                        break;
-                    case 1:
-                        down = new Random().nextBoolean();
-                        break;
-                }
-            }
-            left = false;
         }
 
-        if (x > interpolationX && (side == 0 || side == 2)) {
+        if (x > interpolation && (side == 0 || side == 2)) {
             distance = y - startY;
 
-            y = interpolateToValue(y,distance);
-            left = true;
-        }else if (x < (width*size) - interpolationX && (side == 1 || side == 3)) {
+            y = interpolateToValue(y, distance);
+        } else if (x < (width * size) - interpolation && (side == 1 || side == 3)) {
             distance = y - startY;
 
-            y = interpolateToValue(y,distance);
-            left = true;
+            y = interpolateToValue(y, distance);
         } else {
             if (up) {
                 y -= size;
-
-                left = true;
                 down = false;
             }
             if (down) {
                 y += size;
-
-                left = true;
                 up = false;
             }
         }
 
-        // Depending on up/down or left/right switch coordinate
+        setRiverBatch(x, y, side);
+
+        if (side == 2 || side == 3) {
+            return new Locator(y, x);
+        } else {
+            return new Locator(x, y);
+        }
+    }
+
+    // Depending on up/down or left/right switch coordinate
+    private void setRiverBatch(int x, int y, int side) {  
         if (side == 2 || side == 3) {
             changeType(y, x, BATCH_WATER);
         } else {
             changeType(x, y, BATCH_WATER);
         }
-
-        if (side == 2 || side == 3) {
-            return new Point(y, x);
-        } else {
-            return new Point(x, y);
-        }
     }
 
     private void changeType(int x, int y, String type) {
-
         foundBreak:
         for (int i = 0; i < batchList.size(); i++) {
             if (batchList.get(i).getBatch().getX() == x && batchList.get(i).getBatch().getY() == y) {

@@ -13,7 +13,7 @@ import javafx.stage.Stage;
 
 /**
  *
- * @author -HONOR-
+ * @author frahohen
  */
 public class FlatWorldBuilder extends Application {
     
@@ -26,7 +26,7 @@ public class FlatWorldBuilder extends Application {
     public void start(Stage primaryStage) {
         
         scrollPane = new ScrollPane();
-        map = new Map(32,32, 1);
+        map = new Map(32,32, 4);
         map.generate();
         
         scrollPane.setContent(map.getMapPane());
